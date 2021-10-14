@@ -78,8 +78,8 @@ function buildPlot(){
         text: filtered[0].otu_labels,
         mode: 'markers',
         marker: {
-          color :['rgb(93, 164, 214)', 'rgb(255, 144, 14)',  'rgb(44, 160, 101)', 'rgb(255, 65, 54)'],
-          size : filtered[0].sample_values
+          color :['rgb(255, 144, 14)']
+          size : filtered[0].sample_values,
         }
       };
     
@@ -89,7 +89,7 @@ function buildPlot(){
         title: 'OTU Info For Subject',
         showlegend: false,
           height: 600,
-        width: 600
+        width: 500
        };
     
       Plotly.newPlot('bubble', data, layout);  
