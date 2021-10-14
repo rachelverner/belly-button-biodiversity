@@ -69,34 +69,44 @@ function buildPlot(){
             orientation: 'h'
         }];
       
-      Plotly.newPlot('bar', data);
+     Plotly.newPlot('bar', data);
 
-          // bubble chart
-      var trace2 = {
-        x: filtered[0].otu_ids,
-        y: filtered[0].sample_values,
-        text: filtered[0].otu_labels,
-        mode: 'markers',
-        marker: {
-          color :['rgb(255, 144, 14)']
-          size : filtered[0].sample_values,
-        }
-      };
-    
-      var data = [trace2];
-    
-      var layout = {
-        title: 'OTU Info For Subject',
-        showlegend: false,
-          height: 600,
-        width: 500
-       };
-    
-      Plotly.newPlot('bubble', data, layout);  
+        // bubble chart
+    var trace2 = {
+      x: filtered[0].otu_ids,
+      y: filtered[0].sample_values,
+      text: filtered[0].otu_labels,
+      mode: 'markers',
+      marker: {
+        color : filtered[0].otu_ids,
+        size : filtered[0].sample_values
+      }
+    };
+   
+ var trace2 = {
+x: [1, 2, 3, 4],
+y: [10, 11, 12, 13],
+mode: 'markers',
+marker: {
+  color: 'rgb(255, 144, 14)',
+  opacity: [1, 0.8, 0.6, 0.4],
+  size: [40, 60, 80, 100]
+}
+};
+    var data = [trace2];
+  
+    var layout = {
+      title: 'OTU Info For Subject',
+      showlegend: false,
+        height: 600,
+      width: 600
+     };
+  
+    Plotly.newPlot('bubble', data, layout);  
 
 
 
-    });
+  });
 
 };
 
