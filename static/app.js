@@ -1,107 +1,122 @@
-  
-function buildMetadata(sample) {
-  d3.json("data/samples.json").then((data) => {
-    var metadata= data.metadata;
-    var resultsarray= metadata.filter(sampleobject => 
-      sampleobject.id == sample);
-    var result= resultsarray[0]
-    var panel = d3.select("#sample-metadata");
-    panel.html("");
-    Object.entries(result).forEach(([key, value]) => {
-      panel.append("h6").text(`${key}: ${value}`);
-    });
+// create init function to build inital plot when refreshed
+function init(){
+    buildPlot()
+};
 
-
-
-
-  });
-}
-
-function buildCharts(sample) {
-
-d3.json("samples.json").then((data) => {
-  var samples= data.samples;
-  var resultsarray= samples.filter(sampleobject => 
-      sampleobject.id == sample);
-  var result= resultsarray[0]
-
-  var ids = result.otu_ids;
-  var labels = result.otu_labels;
-  var values = result.sample_values;
-
-  var LayoutBubble = {
-    margin: { t: 0 },
-    xaxis: { title: "OTU ID" },
-    hovermode: "closest",
-    };
-
-    var DataBubble = [ 
-    {
-      x: ids,
-      y: values,
-      text: labels,
-      mode: "markers",
-      marker: {
-        color: ids,
-        size: values,
-        }
-    }
-  ];
-
-  Plotly.newPlot("bubble", DataBubble, LayoutBubble);
-
-
-//bar chart
-
-  var bar_data =[
-    {
-      y:ids.slice(0, 10).map(otuID => `OTU ${otuID}`).reverse(),
-      x:values.slice(0,10).reverse(),
-      text:labels.slice(0,10).reverse(),
-      type:"bar",
-      orientation:"h"
-
-    }
-  ];
-
-  var barLayout = {
-    title: "Top 10 Bacteria Cultures Found",
-    margin: { t: 30, l: 150 }
+//create function that will apply once the option has changed
+function optionChanged() {
+    // Build the revised plot
+    buildPlot();
   };
 
-  Plotly.newPlot("bar", bar_data, barLayout);
-});
-}
- 
+//create a function that builds plot
+function buildPlot(){
 
-function init() {
-// Grab a reference to the dropdown select element
-var selector = d3.select("#selDataset");
+    d3.json("data/samples.json").then((data) =>{
+        //get a list of all the id names
+        var idValues = data.names;
+        console.log(idValues);
 
-// Use the list of sample names to populate the select options
-d3.json("samples.json").then((data) => {
-  var sampleNames = data.names;
-  sampleNames.forEach((sample) => {
-    selector
-      .append("option")
-      .text(sample)
-      .property("value", sample);
-  });
+        // Create the drop down menu by inserting every id
+        idValues.forEach(id => d3.select('#selDataset').append('option').text(id).property("value", id));
 
-  // Use the first sample from the list to build the initial plots
-  const firstSample = sampleNames[0];
-  buildCharts(firstSample);
-  buildMetadata(firstSample);
-});
-}
+        // Use D3 to select the current ID and store in a variable to work with
+        var currentID = d3.selectAll("#selDataset").node().value;
+        console.log(currentID);
 
-function optionChanged(newSample) {
-// Fetch new data each time a new sample is selected
-buildCharts(newSample);
-buildMetadata(newSample);
-}
+        //filter the data based on selection
+        filtered = data.samples.filter(entry => entry.id == currentID);
+        console.log(filtered);
+
+                // create the demographics panel
+        filterData2 = data.metadata.filter(entry => entry.id == currentID)
+
+        // create a demographics object to add to panel body
+        var panelDemo = {
+            'id: ': filterData2[0].id,
+            'ethnicity: ': filterData2[0].ethnicity,
+            'gender: ': filterData2[0].gender,
+            'age: ': filterData2[0].age,
+            'location: ': filterData2[0].location,
+            'bbtype: ': filterData2[0].bbtype,
+            'wfreq: ': filterData2[0].wfreq
+            }
+        
+        console.log(panelDemo)    
+        //select the id to append the key value pair under demographics panel
+        panelBody = d3.select("#sample-metadata")
+      
+        // remove the current demographic info to make way for new currentID
+        panelBody.html("")
+              
+        //append the key value pairs from demographics into the demographics panel
+        Object.entries(panelDemo).forEach(([key, value]) => {
+            panelBody.append('p').attr('style', 'font-weight: bold').text(key + value)
+            });
+        //testing for x values
+        console.log(filtered[0].sample_values);
+        console.log(filtered[0].sample_values.slice(0,10));
+    
+        //y vales test
+        console.log(filtered[0].otu_ids.slice(0,10).reverse());
+        console.log(filtered[0].otu_ids.slice(0,10).reverse().map(id => "OTU " + id.toString()));
+
+        // horizontal bar chart
+        var data = [{
+            type: 'bar',
+            x: filtered[0].sample_values.slice(0,10).reverse(),
+            y: filtered[0].otu_ids.slice(0,10).reverse().map(id => "OTU " + id.toString()),
+            orientation: 'h'
+        }];
+      
+      Plotly.newPlot('bar', data);
+
+          // bubble chart
+      var trace2 = {
+        x: filtered[0].otu_ids,
+        y: filtered[0].sample_values,
+        text: filtered[0].otu_labels,
+        mode: 'markers',
+        marker: {
+          color : filtered[0].otu_ids,
+          size : filtered[0].sample_values
+        }
+      };
+     
+      var data = [trace2];
+    
+      var layout = {
+        title: 'OTU Info For Subject',
+        showlegend: false,
+       };
+    
+      Plotly.newPlot('bubble', data, layout);  
+
+
+      // gauge plot 
+      var data = [
+        {
+          domain: { x: [0, 1], y: [0, 1] },
+          value: filterData2[0].wfreq,
+          title: { text: "Belly Button Washing Frequency", font: { size: 24 } },
+          type: "indicator",
+          mode: "gauge",
+          gauge: { axis: { visible: true, range: [0, 9] } },
+        },
+      ];
+      
+      var layout = { 
+        width: 600, 
+        height: 500,
+        margin: { t: 0, b: 0 } };
+      
+      Plotly.newPlot('gauge', data, layout);
 
 
 
-// Initialize the dashboard
+    });
+
+};
+
+//run init to  set the main page
 init();
