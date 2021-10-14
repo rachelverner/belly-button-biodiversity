@@ -78,21 +78,11 @@ function buildPlot(){
         text: filtered[0].otu_labels,
         mode: 'markers',
         marker: {
-          color : filtered[0].otu_ids,
+          color :['rgb(93, 164, 214)', 'rgb(255, 144, 14)',  'rgb(44, 160, 101)', 'rgb(255, 65, 54)'],
           size : filtered[0].sample_values
         }
       };
-     
-   var trace2 = {
-  x: [1, 2, 3, 4],
-  y: [10, 11, 12, 13],
-  mode: 'markers',
-  marker: {
-    color:['hsl(0,100,40)', 'hsl(33,100,40)', 'hsl(66,100,40)', 'hsl(99,100,40)'],
-    opacity: [1, 0.8, 0.6, 0.4],
-    size: [40, 60, 80, 100]
-  }
-};
+    
       var data = [trace2];
     
       var layout = {
